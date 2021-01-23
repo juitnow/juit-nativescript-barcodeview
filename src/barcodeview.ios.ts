@@ -1,3 +1,5 @@
+import { Application } from '@nativescript/core'
+
 import {
   KnownBarcodeFormat,
   UnknownBarcodeFormat,
@@ -216,10 +218,16 @@ export class BarcodeScannerView extends BarcodeScannerViewBase {
   private _metadataOutput?: AVCaptureMetadataOutput
   private _captureSession?: AVCaptureSession
   private _previewLayer?: AVCaptureVideoPreviewLayer
-  private __view: any
+
+  private __suspendHandler: () => void
+  private __resumeHandler: () => void
 
   constructor() {
     super()
+
+    // Handlers will be bound to "this"
+    this.__suspendHandler = () => updatePaused(this._captureSession, true)
+    this.__resumeHandler = () => updatePaused(this._captureSession, this.paused)
 
     const defaultDevice = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeVideo)
     if (defaultDevice) {
@@ -294,14 +302,21 @@ export class BarcodeScannerView extends BarcodeScannerViewBase {
     view.layer.insertSublayerAtIndex(this._previewLayer, 0)
     this._previewLayer.frame = view.bounds
 
+    // Setup our application lifecycle handlers
+    Application.on(Application.suspendEvent, this.__suspendHandler)
+    Application.on(Application.resumeEvent, this.__resumeHandler)
+
     // Return our view
-    return this.__view = view
+    return view
   }
 
   initNativeView() {
     debug('initNativeView')
 
+    // Properly initialize the view
     super.initNativeView()
+
+    // Update torch and paused status (we don't do it in "createView")
     updateTorches(this._captureSession, this.torchOn)
     updatePaused(this._captureSession, this.paused)
   }
@@ -309,8 +324,15 @@ export class BarcodeScannerView extends BarcodeScannerViewBase {
   disposeNativeView() {
     debug('disposeNativeView')
 
+    // Remove our application lifecycle handlers
+    Application.off(Application.suspendEvent, this.__suspendHandler)
+    Application.off(Application.resumeEvent, this.__resumeHandler)
+
+    // Stop capturing and turn off torches
     updatePaused(this._captureSession, true)
     updateTorches(this._captureSession, false)
+
+    // Dispose of the view properly
     return super.disposeNativeView()
   }
 
