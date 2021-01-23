@@ -1,0 +1,4 @@
+module BarcodeMetadataObjectsDelegate {
+    header "BarcodeMetadataObjectsDelegate.h"
+    export *
+}
