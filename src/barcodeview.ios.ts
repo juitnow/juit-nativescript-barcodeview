@@ -1,5 +1,3 @@
-import { Application } from '@nativescript/core'
-
 import {
   KnownBarcodeFormat,
   UnknownBarcodeFormat,
@@ -219,15 +217,8 @@ export class BarcodeScannerView extends BarcodeScannerViewBase {
   private _captureSession?: AVCaptureSession
   private _previewLayer?: AVCaptureVideoPreviewLayer
 
-  private __suspendHandler: () => void
-  private __resumeHandler: () => void
-
   constructor() {
     super()
-
-    // Handlers will be bound to "this"
-    this.__suspendHandler = () => updatePaused(this._captureSession, true)
-    this.__resumeHandler = () => updatePaused(this._captureSession, this.paused)
 
     const defaultDevice = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeVideo)
     if (defaultDevice) {
@@ -302,10 +293,6 @@ export class BarcodeScannerView extends BarcodeScannerViewBase {
     view.layer.insertSublayerAtIndex(this._previewLayer, 0)
     this._previewLayer.frame = view.bounds
 
-    // Setup our application lifecycle handlers
-    Application.on(Application.suspendEvent, this.__suspendHandler)
-    Application.on(Application.resumeEvent, this.__resumeHandler)
-
     // Return our view
     return view
   }
@@ -323,10 +310,6 @@ export class BarcodeScannerView extends BarcodeScannerViewBase {
 
   disposeNativeView() {
     debug('disposeNativeView')
-
-    // Remove our application lifecycle handlers
-    Application.off(Application.suspendEvent, this.__suspendHandler)
-    Application.off(Application.resumeEvent, this.__resumeHandler)
 
     // Stop capturing and turn off torches
     updatePaused(this._captureSession, true)
