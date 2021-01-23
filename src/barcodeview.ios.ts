@@ -283,7 +283,7 @@ export class BarcodeScannerView extends BarcodeScannerViewBase {
 
     // Create and setup our delegate into the metadata output
     BarcodeMetadataObjectsDelegate.alloc().initWithCallback((type: string, text: string) => {
-      debug(`scanned type="${type}", text="${text}", paused="${this.paused}`)
+      debug(`scanned type="${type}", text="${text}", paused="${this.paused}"`)
       const format = localBarcodeFormat(type)
       this._notifyScanResult(format, text)
     }).setup(this._metadataOutput)
