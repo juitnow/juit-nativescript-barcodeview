@@ -7,6 +7,7 @@ This package implements a minimalistic barcode-scanning `View` for
 * [Attributes](#attributes)
 * [Events](#events)
 * [Dismissal](#dismissal)
+* [Image Parsing](#image-parsing)
 * [Barcode Formats](#barcode-formats)
 
 ## Sample
@@ -33,7 +34,7 @@ barcode scanning:
 #### TypeScript
 
 ```typescript
-import { BarcodeFormat, ScanResultEventData } from '@juit/nativescript-barcodeview'
+import { ScanResultEventData } from '@juit/nativescript-barcodeview'
 
 export function barcodeScanned(event: ScanResultEventData) {
   alert(`Scanned "${event.format}" barcode: ${event.text}`)
@@ -85,6 +86,27 @@ export interface ScanResultEventData extends EventData {
 
 Make sure that the `BarcodeScannerView`'s own `disposeNativeView()` is called
 to release the camera and barcode-scanning resources
+
+
+## Image Parsing
+
+In some cases (e.g. simulators) it might be necessary to _simulate_ the scanning
+of a barcode using an image stored on the device.
+
+While this library doesn't support picking images (see the wonderful
+[`@nativescript/imagepicker`](https://github.com/NativeScript/nativescript-imagepicker)
+plugin for a good implementation), it offers function to scan `ImageAsset`s.
+
+```typescript
+import { parseBarcodes, BarcodeFormat } from '@juit/nativescript-barcodeview'
+
+const ImageAsset asset = // ... get this with '@nativescript/imagepicker'
+
+parseBarcode(asset, [ BarcodeFormat.QR_CODE ])
+  .then((result: scanResult) => {
+    console.log(`Scanned "${event.format}" barcode from image: ${event.text}`)
+  })
+```
 
 
 ## Barcode Formats

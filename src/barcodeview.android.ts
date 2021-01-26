@@ -1,6 +1,7 @@
 import {
   BarcodeFormat,
   KnownBarcodeFormat,
+  ScanResult,
   UnknownBarcodeFormat,
 } from './barcodeview.shared'
 
@@ -10,7 +11,7 @@ import {
   debug as abstractDebug,
 } from './barcodeview.abstract'
 
-import { Application } from '@nativescript/core'
+import { Application, ImageAsset } from '@nativescript/core'
 
 export { BarcodeFormat, UnknownBarcodeFormat }
 
@@ -71,9 +72,12 @@ export class BarcodeScannerView extends BarcodeScannerViewBase {
     const notifyScanResult = this._notifyScanResult.bind(this)
     this._barcodeCallback = new com.journeyapps.barcodescanner.BarcodeCallback({
       barcodeResult(result: com.journeyapps.barcodescanner.BarcodeResult) {
-        const format = androidFormats.localBarcodeFormat(result.getBarcodeFormat())
+        const format = result.getBarcodeFormat()
         const text = result.getText()
-        notifyScanResult(format, text)
+        if (format && text) {
+          debug(`scanned(type="${format}", text="${text}")`)
+          notifyScanResult(androidFormats.localBarcodeFormat(format), text)
+        }
       },
       possibleResultPoints() {
         // Implemented just to satisfy interface requirement...
@@ -165,4 +169,57 @@ export class BarcodeScannerView extends BarcodeScannerViewBase {
       }
     }
   }
+}
+
+/* ========================================================================== *
+ * STATIC BARCODE (IMAGE) PARSER                                              *
+ * ========================================================================== */
+
+export function parseBarcodes(asset?: ImageAsset, formats?: KnownBarcodeFormat[]): Promise<ScanResult[]> {
+  return new Promise((resolve, reject) => {
+    if (! asset) return resolve([])
+
+    // Get the native UIImage from the NativeScript imageAsset
+    asset.getImageAsync((image: android.graphics.Bitmap, error: any) => {
+      if (error) return reject(error) // in case of errors, simply reject
+      if (! image) return resolve([]) // no image? definitely no barcodes!
+
+      // Copy pixel data from the Bitmap into the 'intArray' array
+      const intArray = new native.Array<number>()
+      image.getPixels(intArray, 0, image.getWidth(), 0, 0, image.getWidth(), image.getHeight())
+
+      // Prepare the ZXing Binary Bitmap used to look for barcodes
+      const source = new com.google.zxing.RGBLuminanceSource(image.getWidth(), image.getHeight(), intArray)
+      const binarizer = new com.google.zxing.common.HybridBinarizer(source)
+      const bitmap = new com.google.zxing.BinaryBitmap(binarizer)
+
+      // Restrict the barcode formats to look for (by default it's all)
+      const types = androidFormats.nativeBarcodeFormats(formats)
+      const list = java.util.Arrays.asList(types)
+
+      const hints = new java.util.HashMap<com.google.zxing.DecodeHintType, any>()
+      hints.put(com.google.zxing.DecodeHintType.POSSIBLE_FORMATS, list)
+
+      // Create our MultiFormatReader and decode the image
+      const reader = new com.google.zxing.MultiFormatReader()
+      try {
+        const result = reader.decode(bitmap, hints)
+
+        const type = result.getBarcodeFormat()
+        const text = result.getText()
+        if (type && text) {
+          const format = androidFormats.localBarcodeFormat(type)
+          return resolve([ { format, text } ])
+        } else {
+          return resolve([])
+        }
+      } catch (error) {
+        if (error instanceof com.google.zxing.NotFoundException) {
+          return resolve([])
+        } else {
+          return reject(error)
+        }
+      }
+    })
+  })
 }

@@ -1,6 +1,7 @@
 import {
   BarcodeFormat,
   KnownBarcodeFormat,
+  ScanResult,
   UnknownBarcodeFormat,
 } from './barcodeview.shared'
 
@@ -9,6 +10,7 @@ import {
   BarcodeScannerViewBase,
   debug as abstractDebug,
 } from './barcodeview.abstract'
+import { ImageAsset } from '@nativescript/core'
 
 export { BarcodeFormat, UnknownBarcodeFormat }
 
@@ -35,6 +37,24 @@ const iosFormats = new BarcodeFormats<string>({
   'QR_CODE': AVMetadataObjectTypeQRCode,
   'UPC_E': AVMetadataObjectTypeUPCECode,
 })
+
+/** Our mapper between local barcode formats and native barcode symbologies */
+const iosSymbologies = new BarcodeFormats<string>({
+  'AZTEC': VNBarcodeSymbologyAztec,
+  'CODE_128': VNBarcodeSymbologyCode128,
+  'CODE_39_MOD_43': VNBarcodeSymbologyCode39FullASCII,
+  'CODE_39': VNBarcodeSymbologyCode39FullASCIIChecksum,
+  'CODE_93': VNBarcodeSymbologyCode93,
+  'DATA_MATRIX': VNBarcodeSymbologyDataMatrix,
+  'EAN_13': VNBarcodeSymbologyEAN13,
+  'EAN_8': VNBarcodeSymbologyEAN8,
+  'INTERLEAVED_2_OF_5': VNBarcodeSymbologyI2of5,
+  'ITF_14': VNBarcodeSymbologyITF14,
+  'PDF_417': VNBarcodeSymbologyPDF417,
+  'QR_CODE': VNBarcodeSymbologyQR,
+  'UPC_E': VNBarcodeSymbologyUPCE,
+})
+
 
 /** An `IterableIterator` wrapping an `NSArray` instance */
 class NSArrayIterator<T> implements IterableIterator<T> {
@@ -92,9 +112,11 @@ export class BarcodeScannerView extends BarcodeScannerViewBase {
 
     // Keep the delegate callback's reference, we don't want it to be garbage collected
     this._delegateCallback = (function(this: BarcodeScannerView, type: string, text: string) {
-      debug(`scanned(type="${type}", text="${text}")`)
-      const format = iosFormats.localBarcodeFormat(type)
-      this._notifyScanResult(format, text)
+      if (type && text) { // sometimes those might be null
+        debug(`scanned(type="${type}", text="${text}")`)
+        const format = iosFormats.localBarcodeFormat(type)
+        this._notifyScanResult(format, text)
+      }
     }).bind(this)
   }
 
@@ -210,4 +232,55 @@ export class BarcodeScannerView extends BarcodeScannerViewBase {
       }
     }
   }
+}
+
+/* ========================================================================== *
+ * STATIC BARCODE (IMAGE) PARSER                                              *
+ * ========================================================================== */
+
+export function parseBarcodes(asset?: ImageAsset, formats?: KnownBarcodeFormat[]): Promise<ScanResult[]> {
+  return new Promise((resolve, reject) => {
+    if (! asset) return resolve([])
+
+    // Get the native UIImage from the NativeScript imageAsset
+    asset.getImageAsync((image: UIImage, error: any) => {
+      if (error) return reject(error) // in case of errors, simply reject
+      if (! image) return resolve([]) // no image? definitely no barcodes!
+
+      // Prepare a Vision barcode request with a callback to resolve/reject
+      const request = new VNDetectBarcodesRequest({ completionHandler: (request: VNRequest, error: NSError) => {
+        if (error) return reject(error) // in case of errors, simply reject
+        if (! request.results) return resolve([]) // no results? no barcodes
+
+        // Convert our "VNBarcodeObservation"
+        const results: ScanResult[] = []
+        for (const result of new NSArrayIterator(request.results)) {
+          const observation = <VNBarcodeObservation> result
+
+          const text = observation.payloadStringValue
+          const format = iosSymbologies.localBarcodeFormat(observation.symbology)
+
+          if (text && (format != BarcodeFormat.UNKNOWN)) {
+            results.push({ format, text })
+          }
+        }
+
+        // Resolve with our results */
+        return resolve(results)
+      } })
+
+      // The symbologies to look for (restricted to those available)
+      const symbologies = iosSymbologies.nativeBarcodeFormats(formats)
+      const available = NSMutableSet.setWithArray(VNDetectBarcodesRequest.supportedSymbologies)
+      available.intersectSet(NSSet.setWithArray(symbologies))
+      request.symbologies = available.allObjects
+
+      // Create a new Vision image handler that will perform the parsing
+      const options = NSDictionary.alloc<string, any>().init()
+      const handler = VNImageRequestHandler.alloc().initWithCGImageOptions(image.CGImage, options)
+
+      // This seems to hang until the image is correctly processed. Workers???
+      handler.performRequestsError([ request ])
+    })
+  })
 }

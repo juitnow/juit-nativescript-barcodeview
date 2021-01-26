@@ -1,4 +1,4 @@
-import { ContentView, EventData, GestureTypes } from '@nativescript/core'
+import { ContentView, EventData, GestureTypes, ImageAsset } from '@nativescript/core'
 
 /** An _enum_ of all barcode formats, including the _unknown_ one. */
 export enum BarcodeFormat {
@@ -110,3 +110,13 @@ export class BarcodeScannerView extends ContentView implements BarcodeScannerVie
   /** A flag to enable/disable debug */
   static debugEnabled: boolean
 }
+
+/* ========================================================================== */
+
+/**
+ * Parse all barcodes found in an `ImageAsset`.
+ *
+ * @param asset - The `ImageAsset` to use when looking for barcodes.
+ * @param formats - The array of `BarcodeFormat`s to parse, defaults to _all_.
+ */
+export declare function parseBarcodes(asset?: ImageAsset, formats?: BarcodeFormat[]): Promise<ScanResult[]>
