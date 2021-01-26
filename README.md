@@ -3,6 +3,14 @@
 This package implements a minimalistic barcode-scanning `View` for
 [NativeScript](https://nativescript.org/) (from v. 7).
 
+* [Sample](#sample)
+* [Attributes](#attributes)
+* [Events](#events)
+* [Dismissal](#dismissal)
+* [Barcode Formats](#barcode-formats)
+
+## Sample
+
 ![Sample](./sample.png)
 
 
@@ -40,7 +48,7 @@ barcode scanner what formats should be recognized.
 When specified as a `string`, the formats are case-insensitive, comma and/or
 whitespace separated
 
-See [_Barcode Formats_](#barcode-formats) below for a list of supported formats.
+See [Barcode Formats](#barcode-formats) below for a list of supported formats.
 
 The default (empty array) represents all supported formats.
 
@@ -77,6 +85,7 @@ export interface ScanResultEventData extends EventData {
 
 Make sure that the `BarcodeScannerView`'s own `disposeNativeView()` is called
 to release the camera and barcode-scanning resources
+
 
 ## Barcode Formats
 
