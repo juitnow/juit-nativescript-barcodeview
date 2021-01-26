@@ -31,7 +31,7 @@ const androidFormats = new BarcodeFormats<com.google.zxing.BarcodeFormat>({
   'DATA_MATRIX': com.google.zxing.BarcodeFormat.DATA_MATRIX,
   'EAN_13': com.google.zxing.BarcodeFormat.EAN_13,
   'EAN_8': com.google.zxing.BarcodeFormat.EAN_8,
-  'ITF': com.google.zxing.BarcodeFormat.ITF,
+  'ITF_14': com.google.zxing.BarcodeFormat.ITF,
   'MAXICODE': com.google.zxing.BarcodeFormat.MAXICODE,
   'PDF_417': com.google.zxing.BarcodeFormat.PDF_417,
   'QR_CODE': com.google.zxing.BarcodeFormat.QR_CODE,

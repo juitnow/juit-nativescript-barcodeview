@@ -12,7 +12,7 @@ export enum BarcodeFormat {
   'EAN_13' = 'EAN_13',
   'EAN_8' = 'EAN_8',
   'INTERLEAVED_2_OF_5' = 'INTERLEAVED_2_OF_5', // not available on Android
-  'ITF' = 'ITF',
+  'ITF_14' = 'ITF_14',
   'MAXICODE' = 'MAXICODE', // not available on iOS
   'PDF_417' = 'PDF_417',
   'QR_CODE' = 'QR_CODE',
@@ -50,6 +50,8 @@ export type ScanResultEvent = 'scanResult'
 export interface ScanResultEventData extends EventData, ScanResult {
   /** The event name, always `scanResult` */
   eventName: ScanResultEvent,
+  /** The `BarcodeScannerView` source of the event */
+  object: BarcodeScannerView,
 }
 
 /* ========================================================================== */

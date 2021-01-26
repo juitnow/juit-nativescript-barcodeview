@@ -30,7 +30,7 @@ const iosFormats = new BarcodeFormats<string>({
   'EAN_13': AVMetadataObjectTypeEAN13Code,
   'EAN_8': AVMetadataObjectTypeEAN8Code,
   'INTERLEAVED_2_OF_5': AVMetadataObjectTypeInterleaved2of5Code,
-  'ITF': AVMetadataObjectTypeITF14Code,
+  'ITF_14': AVMetadataObjectTypeITF14Code,
   'PDF_417': AVMetadataObjectTypePDF417Code,
   'QR_CODE': AVMetadataObjectTypeQRCode,
   'UPC_E': AVMetadataObjectTypeUPCECode,
