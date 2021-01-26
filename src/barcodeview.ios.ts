@@ -247,6 +247,10 @@ export function parseBarcodes(asset?: ImageAsset, formats?: KnownBarcodeFormat[]
       if (error) return reject(error) // in case of errors, simply reject
       if (! image) return resolve([]) // no image? definitely no barcodes!
 
+      const width = image.size.width * image.scale
+      const height = image.size.height * image.scale
+      debug(`Scanning image of w=${width} h=${height} pixels`)
+
       // Prepare a Vision barcode request with a callback to resolve/reject
       const request = new VNDetectBarcodesRequest({ completionHandler: (request: VNRequest, error: NSError) => {
         if (error) return reject(error) // in case of errors, simply reject
