@@ -186,6 +186,22 @@ export function parseBarcodes(asset?: ImageAsset, formats?: KnownBarcodeFormat[]
       if (error) return reject(error) // in case of errors, simply reject
       if (! image) return resolve([]) // no image? definitely no barcodes!
 
+      debug(`Scanning image of w=${image.getWidth()} h=${image.getHeight()} pixels`)
+
+      // According to https://www.kdab.com/efficient-barcode-scanning-qzxing/
+      // it seems that ZXing does not accept images bigger than 999x99 (could
+      // not find this into the official doccos), but truth to be told, the
+      // resizing done below actually makes it work on larger images...
+      const width = image.getWidth()
+      const height = image.getHeight()
+      const scale = (width > height ? width : height) / 999
+      if (scale > 1) {
+        const newWidth = Math.round(width / scale)
+        const newHeight = Math.round(height / scale)
+        image = android.graphics.Bitmap.createScaledBitmap(image, newWidth, newHeight, true)
+        debug(`Rescaled image to w=${image.getWidth()} h=${image.getHeight()} pixels`)
+      }
+
       // Copy pixel data from the Bitmap into the 'intArray' array
       const intArray = Array.create('int', image.getWidth() * image.getHeight())
       image.getPixels(intArray, 0, image.getWidth(), 0, 0, image.getWidth(), image.getHeight())
