@@ -62,10 +62,12 @@ export class BarcodeScannerView extends BarcodeScannerViewBase {
     // Keep all of the callback's references, we don't want them to be garbage collected
 
     this._activityPaused = (function(this: BarcodeScannerView) {
+      debug('activityPaused()', this.formats)
       this._setIsPaused(true)
     }).bind(this)
 
     this._activityResumed = (function(this: BarcodeScannerView) {
+      debug('activityResumed()', this.formats)
       this._setIsPaused(this.isPaused)
     }).bind(this)
 
@@ -185,7 +187,7 @@ export function parseBarcodes(asset?: ImageAsset, formats?: KnownBarcodeFormat[]
       if (! image) return resolve([]) // no image? definitely no barcodes!
 
       // Copy pixel data from the Bitmap into the 'intArray' array
-      const intArray = new native.Array<number>()
+      const intArray = Array.create('int', image.getWidth() * image.getHeight())
       image.getPixels(intArray, 0, image.getWidth(), 0, 0, image.getWidth(), image.getHeight())
 
       // Prepare the ZXing Binary Bitmap used to look for barcodes
@@ -199,6 +201,7 @@ export function parseBarcodes(asset?: ImageAsset, formats?: KnownBarcodeFormat[]
 
       const hints = new java.util.HashMap<com.google.zxing.DecodeHintType, any>()
       hints.put(com.google.zxing.DecodeHintType.POSSIBLE_FORMATS, list)
+      hints.put(com.google.zxing.DecodeHintType.TRY_HARDER, java.lang.Boolean.TRUE)
 
       // Create our MultiFormatReader and decode the image
       const reader = new com.google.zxing.MultiFormatReader()
@@ -214,7 +217,7 @@ export function parseBarcodes(asset?: ImageAsset, formats?: KnownBarcodeFormat[]
           return resolve([])
         }
       } catch (error) {
-        if (error instanceof com.google.zxing.NotFoundException) {
+        if (error.nativeException instanceof com.google.zxing.NotFoundException) {
           return resolve([])
         } else {
           return reject(error)
