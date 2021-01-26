@@ -178,8 +178,19 @@ export class BarcodeScannerView extends BarcodeScannerViewBase {
  * ========================================================================== */
 
 export function parseBarcodes(asset?: ImageAsset, formats?: KnownBarcodeFormat[]): Promise<ScanResult[]> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, rejector) => {
     if (! asset) return resolve([])
+
+    function reject(rejection: any) {
+      if (rejection instanceof Error) return rejector(rejection)
+      if (rejection instanceof java.lang.Throwable) {
+        return rejector(new Error(`Native Error [${rejection.getClass().getName()}]: ${rejection.getMessage}`))
+      }
+      if (typeof rejection === 'string') return rejector(new Error(rejection))
+
+      console.log('Failed with unknown error', rejection)
+      return rejector(new Error('Failed with unknown error'))
+    }
 
     // Get the native UIImage from the NativeScript imageAsset
     asset.getImageAsync((image: android.graphics.Bitmap, error: any) => {
