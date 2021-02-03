@@ -19,7 +19,7 @@ export { BarcodeFormat, UnknownBarcodeFormat }
  * UTILITIES                                                                  *
  * ========================================================================== */
 
-/* Prefix debug output with '(ios)' */
+/* Prefix debug output with '(android)' */
 const debug = abstractDebug.bind(null, '(android)')
 
 /** Our mapper between local barcode formats and native barcode types */
@@ -44,7 +44,7 @@ const androidFormats = new BarcodeFormats<com.google.zxing.BarcodeFormat>({
 })
 
 /* ========================================================================== *
- * IOS BARCODEVIEW IMPLEMENTATION                                             *
+ * ANDROID BARCODESCANNERVIEW IMPLEMENTATION                                  *
  * ========================================================================== */
 
 export interface BarcodeScannerView {
@@ -57,6 +57,7 @@ export class BarcodeScannerView extends BarcodeScannerViewBase {
   private _barcodeCallback: com.journeyapps.barcodescanner.BarcodeCallback
 
   constructor() {
+    debug('constructor()')
     super()
 
     // Keep all of the callback's references, we don't want them to be garbage collected

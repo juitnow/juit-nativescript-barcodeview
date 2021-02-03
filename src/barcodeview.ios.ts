@@ -80,7 +80,7 @@ class NSArrayIterator<T> implements IterableIterator<T> {
 }
 
 /* ========================================================================== *
- * IOS BARCODEVIEW IMPLEMENTATION                                             *
+ * IOS BARCODESCANNERVIEW IMPLEMENTATION                                      *
  * ========================================================================== */
 
 export interface BarcodeScannerView {
@@ -99,6 +99,7 @@ export class BarcodeScannerView extends BarcodeScannerViewBase {
   private _delegateCallback: (type: string, text: string) => void
 
   constructor() {
+    debug('constructor()')
     super()
 
     const defaultDevice = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeVideo)

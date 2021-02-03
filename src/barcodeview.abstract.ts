@@ -13,9 +13,8 @@ import {
 let debugEnabled = false // default, no debug
 
 export function debug(...args: any[]) {
-  if (debugEnabled) console.log('===[BARCODE SCANNER VIEW]===>', ...args)
+  if (debugEnabled) console.log('[BarcodeScannerView] >>>', ...args)
 }
-
 
 /* ========================================================================== *
  * BARCODE FORMAT NATIVE <-> JS CONVERSIONS                                   *
