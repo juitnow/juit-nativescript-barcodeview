@@ -143,6 +143,10 @@ export abstract class BarcodeScannerViewBase extends BarcodeScannerView {
     debug('initNativeView()')
     super.initNativeView()
 
+    // Reset state
+    this._lastFormat = undefined
+    this._lastText = undefined
+
     // Setup camera (first), formats and paused (initial) statuses
     this._setPreferFrontCamera(this.preferFrontCamera)
     this._setFormats(this.formats)
@@ -151,6 +155,12 @@ export abstract class BarcodeScannerViewBase extends BarcodeScannerView {
 
   disposeNativeView() {
     debug('disposeNativeView()')
+
+    // Reset state
+    this._lastFormat = undefined
+    this._lastText = undefined
+
+    // Always pause the camera when disposing
     this._setIsPaused(true)
     super.disposeNativeView()
   }
