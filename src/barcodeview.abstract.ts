@@ -13,7 +13,10 @@ import {
 let debugEnabled = false // default, no debug
 
 export function debug(...args: any[]) {
-  if (debugEnabled) console.log('[BarcodeScannerView] >>>', ...args)
+  if (debugEnabled) {
+    const ts = new Date().toISOString().substr(11, 12)
+    console.log('[BarcodeScannerView]', ts, ...args)
+  }
 }
 
 /* ========================================================================== *
@@ -143,8 +146,8 @@ export abstract class BarcodeScannerViewBase extends BarcodeScannerView {
     super.initNativeView()
 
     // Reset state
-    this._lastFormat = undefined
-    this._lastText = undefined
+    delete this._lastFormat
+    delete this._lastText
 
     // Setup camera (first), formats and paused (initial) statuses
     this._setPreferFrontCamera(this.preferFrontCamera)
@@ -156,8 +159,8 @@ export abstract class BarcodeScannerViewBase extends BarcodeScannerView {
     debug('disposeNativeView()')
 
     // Reset state
-    this._lastFormat = undefined
-    this._lastText = undefined
+    delete this._lastFormat
+    delete this._lastText
 
     // Always pause the camera when disposing
     this._setIsPaused(true)
@@ -170,19 +173,28 @@ export abstract class BarcodeScannerViewBase extends BarcodeScannerView {
 
   [formatsProperty.setNative](formats: KnownBarcodeFormat[]) {
     debug(`setNative(formats=[${formats.join(',')}])`)
-    this._lastFormat = this._lastText = undefined
+
+    delete this._lastFormat
+    delete this._lastText
+
     this._setFormats(formats)
   }
 
   [preferFrontCameraProperty.setNative](preferFrontCamera: boolean) {
     debug(`setNative(preferFrontCamera=${preferFrontCamera})`)
-    this._lastFormat = this._lastText = undefined
+
+    delete this._lastFormat
+    delete this._lastText
+
     this._setPreferFrontCamera(preferFrontCamera)
   }
 
   [isPausedProperty.setNative](isPaused: boolean) {
     debug(`setNative(isPaused=${isPaused})`)
-    this._lastFormat = this._lastText = undefined
+
+    delete this._lastFormat
+    delete this._lastText
+
     this._setIsPaused(isPaused)
   }
 
