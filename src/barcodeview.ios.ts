@@ -131,6 +131,9 @@ export class BarcodeScannerView extends BarcodeScannerViewBase {
     // The native view comes from the super implementation, a UIView
     const view = <UIView> super.createNativeView()
 
+    // Stop right here unless we have a device
+    if (! (this._frontDevice && this._backDevice)) return view
+
     // OK, we have a device... Let's setup our capture session
     this._captureSession = AVCaptureSession.alloc().init()
 
@@ -159,6 +162,23 @@ export class BarcodeScannerView extends BarcodeScannerViewBase {
     if (this._previewLayer && this.ios) {
       this._previewLayer.frame = this.ios.bounds
     }
+  }
+
+  disposeNativeView() {
+    debug('disposeNativeView()')
+
+    // Stop running and remove layer from view
+    this._captureSession?.stopRunning()
+    this._previewLayer?.removeFromSuperlayer()
+
+    // Reset state
+    delete this._metadataOutput
+    delete this._captureSession
+    delete this._previewLayer
+    delete this._metadataDelegate
+
+    // Always pause the camera when disposing
+    super.disposeNativeView()
   }
 
   /* ======================================================================== *
