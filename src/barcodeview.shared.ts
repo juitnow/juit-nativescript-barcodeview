@@ -97,6 +97,10 @@ export interface BarcodeScannerView extends ContentView {
    * Raised when a barcode gets scanned.
    */
   on(event: ScanResultEvent, callback: (args: ScanResultEventData) => void, thisArg?: any): void
+
+  /* ------------------------------------------------------------------------ */
+
+  clearLastResult(): void
 }
 
 /**

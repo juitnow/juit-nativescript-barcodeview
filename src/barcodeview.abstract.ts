@@ -238,6 +238,11 @@ export abstract class BarcodeScannerViewBase extends BarcodeScannerView {
       text,
     } as ScanResultEventData)
   }
+
+  clearScanResult(): void {
+    delete this._lastFormat
+    delete this._lastText
+  }
 }
 
 

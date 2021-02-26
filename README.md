@@ -6,6 +6,7 @@ This package implements a minimalistic barcode-scanning `View` for
 * [Sample](#sample)
 * [Attributes](#attributes)
 * [Events](#events)
+* [Clearing results](#clearing-results)
 * [Dismissal](#dismissal)
 * [Image Parsing](#image-parsing)
 * [Barcode Formats](#barcode-formats)
@@ -83,6 +84,22 @@ export interface ScanResultEventData extends EventData {
   text: string;
 }
 ```
+
+
+## Clearing results
+
+The `BarcodeScannerView` will not emit a `scanResult` event once it detects the
+same barcode. To clear the last result and be notified of the same barcode, you
+can call the `clearScanResult()` method on its instance.
+
+```typescript
+barcodeScannerView.on('scanResult', (result: ScanResultEventData) => {
+  // do something with the result and then clear it,
+  // allowing it to be reported it once more
+  result.object.clearScanResult()
+})
+```
+
 
 ## Dismissal
 
