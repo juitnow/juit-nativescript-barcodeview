@@ -17,7 +17,7 @@
     "lintfix": "eslint --fix src/"
   },
   "author": "Pier Fumagalli <pier.fumagalli@juit.com>",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@nativescript/core": "^7.1.4",
     "@nativescript/types-android": "^7.1.0",
