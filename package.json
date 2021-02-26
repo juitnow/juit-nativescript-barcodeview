@@ -1,6 +1,6 @@
 {
   "name": "@juit/nativescript-barcodeview",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Embedded barcode scanning view for NativeScript 7",
   "main": "dist/barcodeview",
   "types": "dist/index.d.ts",

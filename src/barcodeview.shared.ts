@@ -100,7 +100,7 @@ export interface BarcodeScannerView extends ContentView {
 
   /* ------------------------------------------------------------------------ */
 
-  clearLastResult(): void
+  clearScanResult(): void
 }
 
 /**
