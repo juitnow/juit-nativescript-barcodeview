@@ -9,7 +9,7 @@ This package implements a minimalistic barcode-scanning `View` for
 * [Dismissal](#dismissal)
 * [Image Parsing](#image-parsing)
 * [Barcode Formats](#barcode-formats)
-* [Copyright](#copyright-2021-juit-gmbh)
+* [Copyright Notice](NOTICE.md)
 * [License](LICENSE.md)
 
 ## Sample
@@ -154,18 +154,3 @@ parseBarcode(asset, [ BarcodeFormat.QR_CODE ])
 [Q]: https://en.wikipedia.org/wiki/Universal_Product_Code
 [R]: https://en.wikipedia.org/wiki/Universal_Product_Code#UPC-E
 [S]: https://en.wikipedia.org/wiki/Universal_Product_Code
-
-
-## Copyright 2021 Juit GmbH
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-[http://www.apache.org/licenses/](http://www.apache.org/licenses/)
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
