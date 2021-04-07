@@ -118,6 +118,11 @@ export class BarcodeScannerView extends ContentView implements BarcodeScannerVie
 /* ========================================================================== */
 
 /**
+ * Utility method to check (and request) for camera permissions.
+ */
+export declare function requestCameraPermission(): Promise<boolean>
+
+/**
  * Parse all barcodes found in an `ImageAsset`.
  *
  * @param asset - The `ImageAsset` to use when looking for barcodes.

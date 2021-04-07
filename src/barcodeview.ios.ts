@@ -256,6 +256,38 @@ export class BarcodeScannerView extends BarcodeScannerViewBase {
 }
 
 /* ========================================================================== *
+ * CAMERA PERMISSIONS CHECK AND REQUEST                                       *
+ * ========================================================================== */
+
+export function requestCameraPermission(): Promise<boolean> {
+  try {
+    const status = AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)
+    switch (status) {
+      // When previously authorized, denied or restricted simply return
+      case AVAuthorizationStatus.Authorized:
+        return Promise.resolve(true)
+      case AVAuthorizationStatus.Denied:
+      case AVAuthorizationStatus.Restricted:
+        return Promise.resolve(false)
+
+      // If permission was not determined before ask for permission now
+      case AVAuthorizationStatus.NotDetermined:
+        return new Promise<boolean>((resolve) => {
+          AVCaptureDevice.requestAccessForMediaTypeCompletionHandler(AVMediaTypeVideo, (granted) => {
+            resolve(granted)
+          })
+        })
+
+      // This should really never happen...
+      default:
+        return Promise.reject(new Error(`Unknown permission status "${status}"`))
+    }
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+/* ========================================================================== *
  * STATIC BARCODE (IMAGE) PARSER                                              *
  * ========================================================================== */
 

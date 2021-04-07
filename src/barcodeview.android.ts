@@ -11,7 +11,11 @@ import {
   debug as abstractDebug,
 } from './barcodeview.abstract'
 
-import { Application, ImageAsset } from '@nativescript/core'
+import {
+  AndroidActivityRequestPermissionsEventData,
+  Application,
+  ImageAsset,
+} from '@nativescript/core'
 
 export { BarcodeFormat, UnknownBarcodeFormat }
 
@@ -166,11 +170,79 @@ export class BarcodeScannerView extends BarcodeScannerViewBase {
         this.android.pause()
         debug('pause()')
       } else if (isRunning == isPaused) {
-        // TODO: permissions!
         this.android.resume()
         debug('resume()')
       }
     }
+  }
+}
+
+/* ========================================================================== *
+ * CAMERA PERMISSIONS CHECK AND REQUEST                                       *
+ * ========================================================================== */
+
+export function requestCameraPermission(): Promise<boolean> {
+  try {
+    const activity = Application.android.foregroundActivity || Application.android.startActivity
+    const context = Application.android.context
+    const permission = android.Manifest.permission.CAMERA
+
+    // If we have no context or no activity, delay until we do...
+    if ((! context) || (! activity)) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          requestCameraPermission().then((r) => resolve(r), (e) => reject(e))
+        }, 250)
+      })
+    }
+
+    // Check current permissions...
+    const status = androidx.core.content.ContextCompat.checkSelfPermission(context, permission)
+    switch (status) {
+      case android.content.pm.PackageManager.PERMISSION_DENIED:
+        break // Let the code outside of the switch statement handlee this
+      case android.content.pm.PackageManager.PERMISSION_GRANTED:
+        return Promise.resolve(true)
+      default:
+        return Promise.reject(new Error(`Unknown permission status "${status}"`))
+    }
+
+    // If we are here we should now request our permissions. Let's start by
+    // creating a promise and exposing its resolve and reject functions...
+    let resolve: ((result: boolean) => void) = () => void 0
+    let reject: ((error: any) => void) = () => void 0
+    const promise = new Promise<boolean>((resolver, rejector) => {
+      resolve = resolver
+      reject = rejector
+    })
+
+    // The code for the permission request, and the permission handler
+    const requestCode = Math.floor(Math.random() * 0x10000) // only 16 bit!
+    const handler = (data: AndroidActivityRequestPermissionsEventData) => {
+      if (data.requestCode != requestCode) return // ignore any other request...
+
+      // Make sure we are never to be called again....
+      Application.android.off('activityRequestPermissions', handler)
+
+      // Check for basic sanity of the permission request...
+      if (data.permissions.length != 1) return reject(new Error(`Invalid permissions length: ${data.permissions.length}`))
+      if (data.permissions[0] != permission) return reject(new Error(`Invalid permission "${data.permissions[0]}"`))
+      if (data.grantResults.length != 1) return reject(new Error(`Invalid grant results length: ${data.grantResults.length}`))
+
+      // Check the granted permission
+      switch (data.grantResults[0]) {
+        case android.content.pm.PackageManager.PERMISSION_DENIED: return resolve(false)
+        case android.content.pm.PackageManager.PERMISSION_GRANTED: return resolve(true)
+        default: return reject(new Error(`Unknown granted permission status "${data.grantResults[0]}"`))
+      }
+    }
+
+    // Setup our activity request permission callback and request permissions
+    Application.android.on('activityRequestPermissions', handler)
+    androidx.core.app.ActivityCompat.requestPermissions(activity, [ permission ], requestCode)
+    return promise
+  } catch (error) {
+    return Promise.reject(error)
   }
 }
 
