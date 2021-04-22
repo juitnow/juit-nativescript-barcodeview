@@ -1,6 +1,6 @@
 {
   "name": "@juit/nativescript-barcodeview",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Embedded barcode scanning view for NativeScript 7",
   "main": "dist/barcodeview",
   "types": "dist/index.d.ts",
@@ -22,12 +22,12 @@
     "@nativescript/core": "^7.3.0",
     "@nativescript/types-android": "^7.3.0",
     "@nativescript/types-ios": "^7.3.0",
-    "@typescript-eslint/eslint-plugin": "^4.21.0",
-    "@typescript-eslint/parser": "^4.21.0",
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
+    "@typescript-eslint/parser": "^4.22.0",
     "babel-eslint": "^10.1.0",
-    "eslint": "^7.23.0",
+    "eslint": "^7.24.0",
     "eslint-config-google": "^0.14.0",
-    "eslint-plugin-tsdoc": "^0.2.11",
-    "typescript": "^4.2.3"
+    "eslint-plugin-tsdoc": "^0.2.14",
+    "typescript": "^4.2.4"
   }
 }
