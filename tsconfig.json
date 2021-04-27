@@ -12,9 +12,15 @@
     "declaration": true,
     "noEmitHelpers": true,
     "importHelpers": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "baseUrl": ".",
     "outDir": "./dist",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "plugins": [ {
+      "transform": "@nativescript/webpack/transformers/ns-transform-native-classes",
+      "type": "raw"
+    } ],
   },
   "include": [
     "src/**/*.ts",
